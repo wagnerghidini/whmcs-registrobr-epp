@@ -142,9 +142,8 @@ abstract class RegistroEPP {
         $Options = array (
             'ssl' => array (
                             'passphrase' => $moduleparams['Passphrase'],
-                            'local_cert' => $moduleparams['Certificate']));
-        } 
-    
+                            'local_cert' => $moduleparams['Certificate'])) ;
+           
         
         # Create SSL context
         $context = stream_context_create ($Options) ;
