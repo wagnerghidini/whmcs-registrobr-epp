@@ -1,9 +1,11 @@
 <?php
 
-class dnsserver {
+class dnsserver
+{
     var $driver = false;
 
-    function __construct($moduleoptions) {
+    function __construct($moduleoptions) 
+    {
 
         if ($moduleoptions['dnsserver'] == "powerdns") {
             $this->driver = new dnsserver_powerdns(
@@ -15,23 +17,27 @@ class dnsserver {
         }    
     }
 
-    function createZone($zone) {
+    function createZone($zone) 
+    {
         return $this->driver->createZone($zone);
     }
 }
 
-class dnsserver_powerdns {
+class dnsserver_powerdns
+{
     var $db;
     
-    function __construct($hostname, $database, $username, $password) {
+    function __construct($hostname, $database, $username, $password) 
+    {
         $this->db = mysqli_connect($hostname, $username, $password, $database);
 
         if (!$this->db) {
-            logModuleCall("registrobr","powerdns_mysql_connect", "", $this->db->error);
+            logModuleCall("registrobr", "powerdns_mysql_connect", "", $this->db->error);
         }     
     }
     
-    function createZone($zone) {
+    function createZone($zone) 
+    {
         $zone_safe = $this->db->real_escape_string($zone);    
         $sql = 'insert into domains (name, type) values ("' . $zone_safe . '", "MASTER")';
         $this->db->query($sql);
@@ -46,5 +52,3 @@ class dnsserver_powerdns {
     }
 
 }
-
-?>
