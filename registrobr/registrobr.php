@@ -1,64 +1,59 @@
 <?php
 
-# Copyright (c) 2013, NIC.br (R)
-# 
-# This program is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
-# the Free Software Foundation, either version 3 of the License, or
-# (at your option) any later version.
-# 
+// Copyright (c) 2013, NIC.br (R)
+// 
+// This program is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+// 
 
-# This program is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
 
-# 
-# You should have received a copy of the GNU General Public License
-# along with this program.  If not, see <http://www.gnu.org/licenses/>.
-
-
-
-# Official Website for whmcs-registrobr-epp
-# https://github.com/registrobr/whmcs-registrobr-epp
+// 
+// You should have received a copy of the GNU General Public License
+// along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
-# More information on NIC.br(R) domain registration services, Registro.br(TM), can be found at http://registro.br
-# Information for registrars available at http://registro.br/provedor/epp
 
-# NIC.br(R) is a not-for-profit organization dedicated to domain registrations and fostering of the Internet in Brazil. No WHMCS services of any kind are available from NIC.br(R).
+// Official Website for whmcs-registrobr-epp
+// https://github.com/registrobr/whmcs-registrobr-epp
 
 
-# Configuration array
+// More information on NIC.br(R) domain registration services, Registro.br(TM), can be found at http://registro.br
+// Information for registrars available at http://registro.br/provedor/epp
 
+// NIC.br(R) is a not-for-profit organization dedicated to domain registrations and fostering of the Internet in Brazil. No WHMCS services of any kind are available from NIC.br(R).
+
+
+// Configuration array
 $include_path = ROOTDIR . '/modules/registrars/registrobr';
 set_include_path($include_path . PATH_SEPARATOR . get_include_path());
 
+// dns server addon
+require_once "registrobr.dnsserver.php";
 
-# dns server addon
-require_once("registrobr.dnsserver.php");
-
-
-function registrobr_getConfigArray() {
-
-    
-    # Create version table if it doesn't exist
+function registrobr_getConfigArray() 
+{
+    // Create version table if it doesn't exist
     $query = "CREATE TABLE IF NOT EXISTS `mod_registrobr_version` (
-    `version` int(10) unsigned NOT NULL,
-    PRIMARY KEY (`version`)
-    ) ";
+        `version` int(10) unsigned NOT NULL,
+        PRIMARY KEY (`version`))";
     mysql_query($query);
    
-    $current_version = 1.01 ;
+    $current_version = 1.01;
     $queryresult = mysql_query("SELECT version FROM mod_registrobr_version");
     $data = mysql_fetch_array($queryresult);
     
-    $version=$data['version'];
+    $version = $data['version'];
     
     if ($version!=$current_version) {
-        #include code to alter table mod_registrobr
+        // include code to alter table mod_registrobr
         
-        #only update version if alter table above succeeds
+        // only update version if alter table above succeeds
         mysql_query("UPDATE mod_registrobr_version SET version='".$current_version."'");
         if (mysql_affected_rows()==0) {
             mysql_query("insert into mod_registrobr_version (version) values ('".$current_version."')");
@@ -67,7 +62,7 @@ function registrobr_getConfigArray() {
     }
   
     
-    # Create auxiliary table if it doesn't exist
+    // Create auxiliary table if it doesn't exist
     $query = "CREATE TABLE IF NOT EXISTS `mod_registrobr` (
         `clID` varchar(16) COLLATE latin1_general_ci NOT NULL,
         `domainid` int(10) unsigned NOT NULL,
@@ -90,10 +85,10 @@ function registrobr_getConfigArray() {
         "FinanceDept" => array( "FriendlyName" => "Finance Department ID", "Type" => "dropdown", "Options" => "1,2,3,4,5,6,7,8,9", "Description" => "Index for Finance Department ID within ticketing system (can be same as above)", "Default" => "1"),
         "Sender" => array( "FriendlyName" => "Sender Username", "Type" => "text", "Size" => "16", "Description" => "Sender of tickets (usually root)", "Default" => "root"),                  
         "Language" => array ( "Type" => "radio", "Options" => "English,Portuguese", "Description" => "Escolha Portuguese para mensagens em Portugu&ecircs", "Default" => "English"),
-                         #"UnityTesting" => array ( "Type" => "radio", "Options" => "Normal,Case1,Case2,Case3","Description" => "Use only for code quality testing", "Default" => "Normal"),
-                         #"UT-Domain" => array( "Type" => "text", "Description" => "Domain name for unity testing"),
-                         #"UT-NameServer1" => array( "Type" => "text", "Description" => "Domain name server #1 for unity testing"),
-                         #"UT-NameServer2" => array( "Type" => "text", "Description" => "Domain name server #2 for unity testing"),
+                         // "UnityTesting" => array ( "Type" => "radio", "Options" => "Normal,Case1,Case2,Case3","Description" => "Use only for code quality testing", "Default" => "Normal"),
+                         // "UT-Domain" => array( "Type" => "text", "Description" => "Domain name for unity testing"),
+                         // "UT-NameServer1" => array( "Type" => "text", "Description" => "Domain name server #1 for unity testing"),
+                         // "UT-NameServer2" => array( "Type" => "text", "Description" => "Domain name server #2 for unity testing"),
                          
         "FriendlyName" => array("Type" => "System", "Value"=>"Registro.br"),
         "Description" => array("Type" => "System", "Value"=>"http://registro.br/provedor/epp/"),
@@ -109,23 +104,17 @@ function registrobr_getConfigArray() {
         "dnsserver_database" => array( "Type" => "text", "Size" => "16", "FriendlyName" => "DNS Server extra", "Description" => "Use database name for PowerDNS dns server"),
         "dnsserver_username" => array( "Type" => "text", "Size" => "16", "FriendlyName" => "DNS Server username" ),
         "dnsserver_password" => array( "Type" => "password", "Size" => "16", "FriendlyName" => "DNS Server password" ),
-
-
     );
     
     $moduleparams = getregistrarconfigoptions('registrobr');
     
-    
-    
-
     return $configarray;
-
 }
 
 
-# Function to return current nameservers
-
-function registrobr_GetNameservers($params) {
+// Function to return current nameservers
+function registrobr_GetNameservers($params) 
+{
 
     /*
      $params example:
@@ -153,23 +142,20 @@ function registrobr_GetNameservers($params) {
      * 
      */
     
-    require_once('RegistroEPP/RegistroEPPFactory.class.php');
+    include_once 'RegistroEPP/RegistroEPPFactory.class.php';
 
-    
     $domain = $params["sld"].".".$params["tld"];
 
-    
-    # Grab module parameters
+    // Grab module parameters
     $moduleparams = getregistrarconfigoptions('registrobr');
 
     $objRegistroEPP = RegistroEPPFactory::build('RegistroEPPDomain');
-    $objRegistroEPP->set('domain',$domain);
-    $objRegistroEPP->set('language',$params['Language']);
+    $objRegistroEPP->set('domain', $domain);
+    $objRegistroEPP->set('language', $params['Language']);
     
     try {
         $objRegistroEPP->login($moduleparams);
-    }
-    catch (Exception $e){
+    } catch (Exception $e){
         $values["error"] = $e->getMessage();
         return $values;
     }
@@ -180,7 +166,7 @@ function registrobr_GetNameservers($params) {
             //Request domain info
                 
             if ($ticket != '') {
-                $objRegistroEPP->set('ticket',$ticket);
+                $objRegistroEPP->set('ticket', $ticket);
                 $ticket = '';    
             }
             $objRegistroEPP->getInfo();
@@ -188,16 +174,16 @@ function registrobr_GetNameservers($params) {
         }
         catch (Exception $e){
             $coderes = $objRegistroEPP->get('coderes');
-            if($coderes != '2303' and $coderes != '1000'){
+            if($coderes != '2303' and $coderes != '1000') {
                 $values["error"] = $e->getMessage();
                 return $values;
             }
         }
-        # Check results    
+        // Check results    
         $coderes = $objRegistroEPP->get('coderes');
         
         if ($coderes != '1000') {
-            $ticket = _registrobr_getTickets($moduleparams['Username'],$params['domainid'],$objRegistroEPP->get('domain'));                
+            $ticket = _registrobr_getTickets($moduleparams['Username'], $params['domainid'], $objRegistroEPP->get('domain'));                
         }
         $i++;
         
@@ -220,9 +206,9 @@ function registrobr_GetNameservers($params) {
 
 }
 
-# Function to save set of nameservers
-
-function registrobr_SaveNameservers($params) {
+// Function to save set of nameservers
+function registrobr_SaveNameservers($params) 
+{
     
     /*
      Array
@@ -252,19 +238,19 @@ function registrobr_SaveNameservers($params) {
      
      */
     
-    require_once('RegistroEPP/RegistroEPPFactory.class.php');
+    include_once 'RegistroEPP/RegistroEPPFactory.class.php';
     
     
 
     $domain = $params["sld"].".".$params["tld"];
     
     
-    # Grab module parameters
+    // Grab module parameters
     $moduleparams = getregistrarconfigoptions('registrobr');
     
     $objRegistroEPP = RegistroEPPFactory::build('RegistroEPPDomain');
-    $objRegistroEPP->set('domain',$domain);
-    $objRegistroEPP->set('language',$params['Language']);
+    $objRegistroEPP->set('domain', $domain);
+    $objRegistroEPP->set('language', $params['Language']);
     
     
     try {
@@ -281,27 +267,27 @@ function registrobr_SaveNameservers($params) {
         try {
             //Request domain info
             if ($ticket != '') {
-                $objRegistroEPP->set('ticket',$ticket);
+                $objRegistroEPP->set('ticket', $ticket);
             }
             $objRegistroEPP->getInfo();
-            $objRegistroEPP->set('ticket','');
+            $objRegistroEPP->set('ticket', '');
     
         }
         catch (Exception $e){
             $coderes = $objRegistroEPP->get('coderes');
-            if($coderes != '2303' and $coderes != '1000'){
+            if($coderes != '2303' and $coderes != '1000') {
                 $values["error"] = $e->getMessage();
                 return $values;
             }
         }
-        # Check results
+        // Check results
         $coderes = $objRegistroEPP->get('coderes');
         if ($coderes == '1000' and $ticket != '') {//Domain pending
             $values["error"] = $objRegistroEPP->getMsgLang("domainpending");
             return $values;
         }
         elseif ($coderes == '2303') {                
-            $ticket = _registrobr_getTickets($moduleparams['Username'],$params['domainid'],$objRegistroEPP->get('domain'));
+            $ticket = _registrobr_getTickets($moduleparams['Username'], $params['domainid'], $objRegistroEPP->get('domain'));
         }
         $i++;
         
@@ -317,34 +303,31 @@ function registrobr_SaveNameservers($params) {
     $NewNameservers["ns4"] = $params["ns4"];
     $NewNameservers["ns5"] = $params["ns5"];
     
-    $objRegistroEPP->updateNameServers($OldNameservers,$NewNameservers);
+    $objRegistroEPP->updateNameServers($OldNameservers, $NewNameservers);
     
     return $values;
-}
+} // End of Function to save set of nameservers
 
-
-function registrobr_RegisterDomain($params){
-
-    
-    require_once('RegistroEPP/RegistroEPPFactory.class.php');
-    require_once ('isCnpjValid.php');
-    require_once ('isCpfValid.php');
+function registrobr_RegisterDomain($params) 
+{    
+    include_once 'RegistroEPP/RegistroEPPFactory.class.php';
+    include_once 'isCnpjValid.php';
+    include_once 'isCpfValid.php';
     
     $domain = $params["original"]["sld"].".".$params["original"]["tld"];
             
-    # Grab module parameters
+    // Grab module parameters
     $moduleparams = getregistrarconfigoptions('registrobr');
 
-    $RegistrantTaxID = $params['customfields'.$moduleparams['CPF']];
+    // Priority must be always CNPJ
+    $RegistrantTaxID = ($params['customfields'.$moduleparams['CNPJ']]) ? $params['customfields'.$moduleparams['CNPJ']] : $params['customfields'.$moduleparams['CPF']];
 
-    if (!isCpfValid($RegistrantTaxID)) {
-        $RegistrantTaxID = $params['customfields'.$moduleparams['CNPJ']] ;
-
-                    ##
+    if (!isCnpjValid($RegistrantTaxID)) {
+        $RegistrantTaxID = $params['customfields'.$moduleparams['CPF']];
 
         $objRegistroEPP = RegistroEPPFactory::build('RegistroEPPDomain');
-        $objRegistroEPP->set('domain',$domain);
-        $objRegistroEPP->set('language',$params['Language']);
+        $objRegistroEPP->set('domain', $domain);
+        $objRegistroEPP->set('language', $params['Language']);
 
         try {
                 $objRegistroEPP->login($moduleparams);
@@ -353,72 +336,61 @@ function registrobr_RegisterDomain($params){
                 $values["error"] = $e->getMessage();
                 return $values;
         }
-                    #
-    
+
+        //
         $objRegistroEPPBrorg = RegistroEPPFactory::build('RegistroEPPBrorg');
  
-        if (!isCnpjValid($RegistrantTaxID)) {
+        if (!isCpfValid($RegistrantTaxID)) {
             $values["error"] =$objRegistroEPPBrorg->getMsgLang("cpfcnpjrequired");
-            logModuleCall("registrobr",$values["error"],$params);
+            logModuleCall("registrobr", $values["error"], $params);
             return $values;
         }
     }
- 
 
-    $RegistrantTaxIDDigits = preg_replace("/[^0-9]/","",$RegistrantTaxID);
-    if (isCpfValid($RegistrantTaxIDDigits)==TRUE) {
-        $RegistrantTaxID = substr($RegistrantTaxIDDigits,0,3).".".substr($RegistrantTaxIDDigits,3,3).".".substr($RegistrantTaxIDDigits,6,3)."-".substr($RegistrantTaxIDDigits,9,2);
-    } 
-    else {
-        $RegistrantTaxID = substr($RegistrantTaxIDDigits,0,2).".".substr($RegistrantTaxIDDigits,2,3).".".substr($RegistrantTaxIDDigits,5,3)."/".substr($RegistrantTaxIDDigits,8,4)."-".substr($RegistrantTaxIDDigits,12,2);
+    $RegistrantTaxIDDigits = preg_replace("/[^0-9]/", "", $RegistrantTaxID);
+    if (isCpfValid($RegistrantTaxIDDigits) == true) {
+        $RegistrantTaxID = substr($RegistrantTaxIDDigits, 0, 3).".".substr($RegistrantTaxIDDigits, 3, 3).".".substr($RegistrantTaxIDDigits, 6, 3)."-".substr($RegistrantTaxIDDigits, 9, 2);
+    } else {
+        $RegistrantTaxID = substr($RegistrantTaxIDDigits, 0, 2).".".substr($RegistrantTaxIDDigits, 2, 3).".".substr($RegistrantTaxIDDigits, 5, 3)."/".substr($RegistrantTaxIDDigits, 8, 4)."-".substr($RegistrantTaxIDDigits, 12, 2);
     }
     
     $regperiod = $params["regperiod"];
-    
 
-    # Get registrant details
+    // Get registrant details
     $name = $params["original"]["firstname"]." ".$params["original"]["lastname"];
     
-    if (isCpfValid($RegistrantTaxIDDigits)==TRUE) {
-        $RegistrantOrgName = substr($RegistrantContactName,0,40);
+    if (isCpfValid($RegistrantTaxIDDigits)==true) {
+        $RegistrantOrgName = substr($RegistrantContactName, 0, 40);
     
     } else {
-        $RegistrantOrgName = substr($params["original"]["companyname"],0,50);
+        $RegistrantOrgName = substr($params["original"]["companyname"], 0, 50);
         if (empty($RegistrantOrgName)) {
             $values['error'] = $objRegistroEPPBrorg->getMsgLang("companynamerequired");
             return $values;
         }
     }
     
-    
-
-
-    
-    # Domain information and check provider
+    // Domain information and check provider
     
     $objRegistroEPPBrorg = RegistroEPPFactory::build('RegistroEPPBrorg');
-    $objRegistroEPPBrorg->set('language',$params['Language']);
-    $objRegistroEPPBrorg->set('domain',$domain);
+    $objRegistroEPPBrorg->set('language', $params['Language']);
+    $objRegistroEPPBrorg->set('domain', $domain);
     
-    $objRegistroEPPBrorg->set('contactID',$RegistrantTaxID);
-    $objRegistroEPPBrorg->set('contactIDDigits',$RegistrantTaxIDDigits);
-    
-    
+    $objRegistroEPPBrorg->set('contactID', $RegistrantTaxID);
+    $objRegistroEPPBrorg->set('contactIDDigits', $RegistrantTaxIDDigits);    
+
     try {        
         $objRegistroEPPBrorg->login($moduleparams);
         $objRegistroEPPBrorg->getInfo(true);
         
         $coderes = $objRegistroEPPBrorg->get('coderes');
         
-        if($coderes == '1000'){
-            # If it's already on the database, verify new domains can be registered    
+        if ($coderes == '1000') {
+            // If it's already on the database, verify new domains can be registered    
             $providerID = $objRegistroEPPBrorg->get('clID');
-            $objRegistroEPPBrorg->verifyProvider($providerID,$moduleparams["Username"]);
-        }
-        else {
-            # Company or individual not in the database, proceed to org contact creation
-            
-            
+            $objRegistroEPPBrorg->verifyProvider($providerID, $moduleparams["Username"]);
+        } else {
+            // Company or individual not in the database, proceed to org contact creation
             $street1    = $params["original"]["address1"];
             $street2    = $params["original"]["address2"];
             $city         = $params["original"]["city"];
@@ -426,64 +398,56 @@ function registrobr_RegisterDomain($params){
             $pc            = $params["original"]["postcode"];
             $cc            = $params["original"]["country"];
             $email        = $params["original"]["email"];
-            $voice        = substr($params["original"]["fullphonenumber"],1);
+            $voice        = substr($params["original"]["fullphonenumber"], 1);
                         
-            $objRegistroEPPBrorg->set('domain',$domain);            
-            $objRegistroEPPBrorg->set('name',$name);
-            $objRegistroEPPBrorg->set('street1',$street1);
-            $objRegistroEPPBrorg->set('street2',$street2);
-            $objRegistroEPPBrorg->set('street3',$street3);            
-            $objRegistroEPPBrorg->set('city',$city);
-            $objRegistroEPPBrorg->set('sp',$sp);
-            $objRegistroEPPBrorg->set('pc',$pc);
-            $objRegistroEPPBrorg->set('cc',$cc);
-            $objRegistroEPPBrorg->set('voice',$voice);
-            $objRegistroEPPBrorg->set('email',$email);
+            $objRegistroEPPBrorg->set('domain', $domain);            
+            $objRegistroEPPBrorg->set('name', $name);
+            $objRegistroEPPBrorg->set('street1', $street1);
+            $objRegistroEPPBrorg->set('street2', $street2);
+            $objRegistroEPPBrorg->set('street3', $street3);            
+            $objRegistroEPPBrorg->set('city', $city);
+            $objRegistroEPPBrorg->set('sp', $sp);
+            $objRegistroEPPBrorg->set('pc', $pc);
+            $objRegistroEPPBrorg->set('cc', $cc);
+            $objRegistroEPPBrorg->set('voice', $voice);
+            $objRegistroEPPBrorg->set('email', $email);
             
             $objRegistroEPPBrorg->createData();
             
             
             $idt = $objRegistroEPPBrorg->get('id');
             
-            # Create Org
+            // Create Org
             $objRegistroEPPRegistrant = RegistroEPPFactory::build('RegistroEPPBrorg');
-            $objRegistroEPPRegistrant->set('language',$params['Language']);
-                
-            $objRegistroEPPRegistrant->set('netClient',$objRegistroEPPBrorg->get('netClient'));
-            $objRegistroEPPRegistrant->set('domain',$domain);
-            $objRegistroEPPRegistrant->set('contactID',$RegistrantTaxID);
-            $objRegistroEPPRegistrant->set('contactIDDigits',$RegistrantTaxIDDigits);
-            $objRegistroEPPRegistrant->set('idt',$idt);
-            
-            $objRegistroEPPRegistrant->set('name',$name);
-            $objRegistroEPPRegistrant->set('street1',$street1);
-            $objRegistroEPPRegistrant->set('street2',$street2);
-            $objRegistroEPPRegistrant->set('street3',$street3);
-            
-            $objRegistroEPPRegistrant->set('city',$city);
-            $objRegistroEPPRegistrant->set('sp',$sp);
-            $objRegistroEPPRegistrant->set('pc',$pc);
-            $objRegistroEPPRegistrant->set('cc',$cc);
-            $objRegistroEPPRegistrant->set('voice',$voice);
-            $objRegistroEPPRegistrant->set('email',$email);
-            
+            $objRegistroEPPRegistrant->set('language', $params['Language']);
+
+            $objRegistroEPPRegistrant->set('netClient', $objRegistroEPPBrorg->get('netClient'));
+            $objRegistroEPPRegistrant->set('domain', $domain);
+            $objRegistroEPPRegistrant->set('contactID', $RegistrantTaxID);
+            $objRegistroEPPRegistrant->set('contactIDDigits', $RegistrantTaxIDDigits);
+            $objRegistroEPPRegistrant->set('idt', $idt);
+
+            $objRegistroEPPRegistrant->set('name', $name);
+            $objRegistroEPPRegistrant->set('street1', $street1);
+            $objRegistroEPPRegistrant->set('street2', $street2);
+            $objRegistroEPPRegistrant->set('street3', $street3);
+
+            $objRegistroEPPRegistrant->set('city', $city);
+            $objRegistroEPPRegistrant->set('sp', $sp);
+            $objRegistroEPPRegistrant->set('pc', $pc);
+            $objRegistroEPPRegistrant->set('cc', $cc);
+            $objRegistroEPPRegistrant->set('voice', $voice);
+            $objRegistroEPPRegistrant->set('email', $email);
+
             $objRegistroEPPRegistrant->createOrgData();
-        
-                
-                            
         }
         
-    }
-    catch (Exception $e){
+    } catch (Exception $e){
         $values["error"] = $e->getMessage();
         return $values;
     }
-    
 
-    
-        # Create domain
-    
-    
+    // Create domain
     $Nameservers["ns1"] = $params["ns1"];
     $Nameservers["ns2"] = $params["ns2"];
     $Nameservers["ns3"] = $params["ns3"];
@@ -491,14 +455,14 @@ function registrobr_RegisterDomain($params){
     $Nameservers["ns5"] = $params["ns5"];
     
     $objRegistroEPPNewDomain = RegistroEPPFactory::build('RegistroEPPDomain');
-    $objRegistroEPPNewDomain->set('language',$params['Language']);
-    $objRegistroEPPNewDomain->set('netClient',$objRegistroEPPBrorg->get('netClient'));
+    $objRegistroEPPNewDomain->set('language', $params['Language']);
+    $objRegistroEPPNewDomain->set('netClient', $objRegistroEPPBrorg->get('netClient'));
     
-    $objRegistroEPPNewDomain->set('domain',$domain);
-    $objRegistroEPPNewDomain->set('regperiod',$regperiod);
-    $objRegistroEPPNewDomain->set('contactIDDigits',$RegistrantTaxIDDigits);
-    $objRegistroEPPNewDomain->set('contactID',$RegistrantTaxID);
-    $objRegistroEPPNewDomain->set('tech',$moduleparams['TechC']);
+    $objRegistroEPPNewDomain->set('domain', $domain);
+    $objRegistroEPPNewDomain->set('regperiod', $regperiod);
+    $objRegistroEPPNewDomain->set('contactIDDigits', $RegistrantTaxIDDigits);
+    $objRegistroEPPNewDomain->set('contactID', $RegistrantTaxID);
+    $objRegistroEPPNewDomain->set('tech', $moduleparams['TechC']);
 
     
     try {
@@ -515,44 +479,36 @@ function registrobr_RegisterDomain($params){
                 "domain"    => $name,
                 "ticket"    => $ticket
         );
-        
-        $newid = insert_query($table,$values);
 
+        // save the ticket id
+        $newid = insert_query($table, $values);
 
         /* create zone at dnsserver */
         if (isset($params['dnsserver']) && $params['dnsserver'] != 'none') {
             $dnsserver = new dnsserver($params);
             $dnsserver->createZone($params['domainname']);
-        }
-        
-    }
-    catch (Exception $e){
+        }        
+    } catch (Exception $e){
         $values["error"] = $e->getMessage();
         return $values;
     }
+
     return $values;
-    
-    
-}
-       
-# Function to register domain
+} // End of Function to register domain
 
-# Function to renew domain
+// Function to renew domain
+function registrobr_RenewDomain($params) {
+    include_once 'RegistroEPP/RegistroEPPFactory.class.php';
 
-function registrobr_RenewDomain($params){
-    
-    require_once('RegistroEPP/RegistroEPPFactory.class.php');
-    
     $domain = $params["sld"].".".$params["tld"];
     $regperiod = $params["regperiod"];
     
-    
-    # Grab module parameters
+    // Grab module parameters
     $moduleparams = getregistrarconfigoptions('registrobr');
     
     $objRegistroEPP = RegistroEPPFactory::build('RegistroEPPDomain');
-    $objRegistroEPP->set('language',$params['Language']);
-    $objRegistroEPP->set('domain',$domain);
+    $objRegistroEPP->set('language', $params['Language']);
+    $objRegistroEPP->set('domain', $domain);
     
     try {
         $objRegistroEPP->login($moduleparams);
@@ -565,7 +521,7 @@ function registrobr_RenewDomain($params){
     try {
         //Request domain info
         $objRegistroEPP->getInfo();
-        $objRegistroEPP->set('regperiod',$regperiod);
+        $objRegistroEPP->set('regperiod', $regperiod);
         $objRegistroEPP->renewDomain();
         $values['expirydate'] = $objRegistroEPP->get('exDate');    
         
@@ -581,9 +537,10 @@ function registrobr_RenewDomain($params){
 }
 
 
-# Function to grab contact details
+// Function to grab contact details
 
-function registrobr_GetContactDetails($params) {
+function registrobr_GetContactDetails($params) 
+{
 
     
     /*
@@ -607,21 +564,21 @@ function registrobr_GetContactDetails($params) {
     )
      */
     
-    # Include CPF and CNPJ stuff we need
-    require_once 'isCnpjValid.php';
-    require_once 'isCpfValid.php';
+    // Include CPF and CNPJ stuff we need
+    include_once 'isCnpjValid.php';
+    include_once 'isCpfValid.php';
 
-    require_once('RegistroEPP/RegistroEPPFactory.class.php');
-    #require_once('ParserResponse/ParserResponse.class.php');
+    include_once 'RegistroEPP/RegistroEPPFactory.class.php';
+    // require_once('ParserResponse/ParserResponse.class.php');
     
-    # Grab module parameters
+    // Grab module parameters
     $moduleparams = getregistrarconfigoptions('registrobr');
         
     $domain = $params["sld"].".".$params["tld"];    
     
     $objRegistroEPP = RegistroEPPFactory::build('RegistroEPPDomain');
-    $objRegistroEPP->set('domain',$domain);
-    $objRegistroEPP->set('language',$params['Language']);
+    $objRegistroEPP->set('domain', $domain);
+    $objRegistroEPP->set('language', $params['Language']);
     
     $ticket = '';
     $i++;
@@ -633,23 +590,23 @@ function registrobr_GetContactDetails($params) {
             $objRegistroEPP->login($moduleparams);
             
             if ($ticket != '') {
-                $objRegistroEPP->set('ticket',$ticket);
+                $objRegistroEPP->set('ticket', $ticket);
                 $ticket = '';
             }
             
             $objRegistroEPP->getInfo();
             $providerID = $objRegistroEPP->get('clID');
-               $objRegistroEPP->verifyProvider($providerID,$moduleparams["Username"]);
-         }         
+               $objRegistroEPP->verifyProvider($providerID, $moduleparams["Username"]);
+        }         
         catch (Exception $e){
             $coderes = $objRegistroEPP->get('coderes');
-            if($coderes != '2303' and $coderes != '1000'){
+            if($coderes != '2303' and $coderes != '1000') {
                 $values["error"] = $e->getMessage();
                 return $values;
             }
         }
         if ($coderes != '1000') {
-            $ticket = _registrobr_getTickets($moduleparams['Username'],$params['domainid'],$objRegistroEPP->get('domain'));
+            $ticket = _registrobr_getTickets($moduleparams['Username'], $params['domainid'], $objRegistroEPP->get('domain'));
                 
         }        
     } while($ticket != '' and $i < 3);
@@ -662,21 +619,21 @@ function registrobr_GetContactDetails($params) {
     
     
     $RegistrantTaxID = $objRegistroEPP->get('organization');
-    # Returned CNPJ has extra zero at left
-    if(isCpfValid($RegistrantTaxID)!=TRUE) { 
-        $RegistrantTaxID=substr($RegistrantTaxID,1);
+    // Returned CNPJ has extra zero at left
+    if(isCpfValid($RegistrantTaxID)!=true) { 
+        $RegistrantTaxID=substr($RegistrantTaxID, 1);
     };
-    $RegistrantTaxIDDigits = preg_replace("/[^0-9]/","",$RegistrantTaxID);
+    $RegistrantTaxIDDigits = preg_replace("/[^0-9]/", "", $RegistrantTaxID);
     
     try {
-        #Get info about the brorg 
+        // Get info about the brorg 
         $objRegistroEPPBrorg = RegistroEPPFactory::build('RegistroEPPBrorg');
-        $objRegistroEPPBrorg->set('language',$params['Language']);
+        $objRegistroEPPBrorg->set('language', $params['Language']);
         
-        $objRegistroEPPBrorg->set('netClient',$objRegistroEPP->get('netClient'));
-        $objRegistroEPPBrorg->set('domain',$domain);
-        $objRegistroEPPBrorg->set('contactID',$RegistrantTaxID);
-        $objRegistroEPPBrorg->set('contactIDDigits',$RegistrantTaxIDDigits);
+        $objRegistroEPPBrorg->set('netClient', $objRegistroEPP->get('netClient'));
+        $objRegistroEPPBrorg->set('domain', $domain);
+        $objRegistroEPPBrorg->set('contactID', $RegistrantTaxID);
+        $objRegistroEPPBrorg->set('contactIDDigits', $RegistrantTaxIDDigits);
         $objRegistroEPPBrorg->getInfo();
     }
     catch(Exception $e){
@@ -686,25 +643,26 @@ function registrobr_GetContactDetails($params) {
     $Contacts["Registrant"]= $objRegistroEPPBrorg->get('contact');
     
     $Name = $objRegistroEPPBrorg->get('name');
-    #Get Info about the brorg
+    // Get Info about the brorg
     
-    # Companies have both company name and contact name, individuals only have their own name 
-    if (isCnpjValid($RegistrantTaxIDDigits)==TRUE) {
+    // Companies have both company name and contact name, individuals only have their own name 
+    if (isCnpjValid($RegistrantTaxIDDigits)==true) {
         $values["Registrant"][$objRegistroEPPBrorg->getMsgLang("companynamefield")] = $Name;
     }
     else { 
         $values["Registrant"][$objRegistroEPPBrorg->getMsgLang("fullnamefield")] = $Name;
     }
     
-    #Get Org, Adm and Tech Contacts
+    // Get Org, Adm and Tech Contacts
     
     foreach ($Contacts as $key => $value) {
         
-        if($key == 'Billing') continue;
+        if($key == 'Billing') { continue; 
+        }
         
         try {
-            $objRegistroEPPBrorg->set('contactID','');
-            $objRegistroEPPBrorg->set('contactIDDigits',$value);
+            $objRegistroEPPBrorg->set('contactID', '');
+            $objRegistroEPPBrorg->set('contactIDDigits', $value);
             $objRegistroEPPBrorg->getInfo();
         }
         catch(Exception $e){
@@ -727,7 +685,7 @@ function registrobr_GetContactDetails($params) {
     /*
      
      Array
-(
+    (
     [Registrant] => Array
         (
             [Full Name] => Flávio Novo Client Yanai
@@ -770,21 +728,22 @@ function registrobr_GetContactDetails($params) {
             [Email] => flavio2.yanai@gmail.com
         )
 
-)
+    )
       
      */
     
     return $values;
 }
 
-# Function to save contact details
+// Function to save contact details
 
-function registrobr_SaveContactDetails($params) {
+function registrobr_SaveContactDetails($params) 
+{
     
     /*
 
      * Array
-(
+    (
     [domainid] => 54
     [sld] => toccos17
     [tld] => com.br
@@ -901,31 +860,31 @@ function registrobr_SaveContactDetails($params) {
     [TechC] => 
     [TechDept] => 1
     [Username] => 237
-)
-﻿
+    )
+    ﻿
      */
 
-    # If nothing was changed, return
+    // If nothing was changed, return
     if ($params["contactdetails"]==$params["original"]["contactdetails"]) {
         $values=array();
         return $values;
     }
     
-    # Include CPF and CNPJ stuff we need
-    require_once 'isCnpjValid.php';
-    require_once 'isCpfValid.php';
+    // Include CPF and CNPJ stuff we need
+    include_once 'isCnpjValid.php';
+    include_once 'isCpfValid.php';
     
-    require_once('RegistroEPP/RegistroEPPFactory.class.php');
+    include_once 'RegistroEPP/RegistroEPPFactory.class.php';
     
     $domain = $params["original"]["sld"].".".$params["original"]["tld"];
     //must be used the original info  
     
-    # Grab module parameters
+    // Grab module parameters
     $moduleparams = getregistrarconfigoptions('registrobr');
     
     $objRegistroEPP = RegistroEPPFactory::build('RegistroEPPDomain');
-    $objRegistroEPP->set('domain',$domain);
-    $objRegistroEPP->set('language',$params['Language']);
+    $objRegistroEPP->set('domain', $domain);
+    $objRegistroEPP->set('language', $params['Language']);
 
                         
     
@@ -938,24 +897,24 @@ function registrobr_SaveContactDetails($params) {
                 
             //Request domain info
             if ($ticket != '') {
-                $objRegistroEPP->set('ticket',$ticket);
+                $objRegistroEPP->set('ticket', $ticket);
             }
 
             $objRegistroEPP->getInfo();
-            $objRegistroEPP->set('ticket','');
+            $objRegistroEPP->set('ticket', '');
             
             $providerID = $objRegistroEPP->get('clID');
-            $objRegistroEPP->verifyProvider($providerID,$moduleparams["Username"]);
+            $objRegistroEPP->verifyProvider($providerID, $moduleparams["Username"]);
     
         }
         catch (Exception $e){
             $coderes = $objRegistroEPP->get('coderes');
-            if($coderes != '2303' and $coderes != '1000'){
+            if($coderes != '2303' and $coderes != '1000') {
                 $values["error"] = $e->getMessage();
                 return $values;
             }
         }
-        # Check results
+        // Check results
         $coderes = $objRegistroEPP->get('coderes');
     
         if ($coderes == '1000' and $ticket != '') {//Domain pending
@@ -963,7 +922,7 @@ function registrobr_SaveContactDetails($params) {
             return $values;
         }
         elseif ($coderes == '2303') {
-            $ticket = _registrobr_getTickets($moduleparams['Username'],$params['domainid'],$objRegistroEPP->get('domain'));
+            $ticket = _registrobr_getTickets($moduleparams['Username'], $params['domainid'], $objRegistroEPP->get('domain'));
         }
         $i++;
     
@@ -981,22 +940,22 @@ function registrobr_SaveContactDetails($params) {
         $Contacts[ucfirst($key)] = $value;
     }
     
-    # Returned CNPJ has extra zero at left
-    if(isCpfValid($RegistrantTaxID)!=TRUE) {
-        $RegistrantTaxID=substr($RegistrantTaxID,1);
+    // Returned CNPJ has extra zero at left
+    if(isCpfValid($RegistrantTaxID)!=true) {
+        $RegistrantTaxID=substr($RegistrantTaxID, 1);
     };
     
-    $RegistrantTaxIDDigits = preg_replace("/[^0-9]/","",$RegistrantTaxID);
+    $RegistrantTaxIDDigits = preg_replace("/[^0-9]/", "", $RegistrantTaxID);
     
     try {
-        #Get info about the brorg
+        // Get info about the brorg
         $objRegistroEPPBrorg = RegistroEPPFactory::build('RegistroEPPBrorg');
-        $objRegistroEPPBrorg->set('language',$params['Language']);
+        $objRegistroEPPBrorg->set('language', $params['Language']);
         
-        $objRegistroEPPBrorg->set('netClient',$objRegistroEPP->get('netClient'));
-        $objRegistroEPPBrorg->set('domain',$domain);
-        $objRegistroEPPBrorg->set('contactID',$RegistrantTaxID);
-        $objRegistroEPPBrorg->set('contactIDDigits',$RegistrantTaxIDDigits);
+        $objRegistroEPPBrorg->set('netClient', $objRegistroEPP->get('netClient'));
+        $objRegistroEPPBrorg->set('domain', $domain);
+        $objRegistroEPPBrorg->set('contactID', $RegistrantTaxID);
+        $objRegistroEPPBrorg->set('contactIDDigits', $RegistrantTaxIDDigits);
         $objRegistroEPPBrorg->getInfo();
     }
     catch(Exception $e) {
@@ -1006,10 +965,10 @@ function registrobr_SaveContactDetails($params) {
     $Contacts["Registrant"]= $objRegistroEPPBrorg->get('contact');
     
     $Name = $objRegistroEPPBrorg->get('name');
-    #Get Info about the brorg
+    // Get Info about the brorg
     
-    # Companies have both company name and contact name, individuals only have their own name
-    if (isCnpjValid($RegistrantTaxIDDigits)==TRUE) {
+    // Companies have both company name and contact name, individuals only have their own name
+    if (isCnpjValid($RegistrantTaxIDDigits)==true) {
         $values["Registrant"][$objRegistroEPPBrorg->getMsgLang("companynamefield")] = $Name;
     }
     else {
@@ -1018,13 +977,13 @@ function registrobr_SaveContactDetails($params) {
     
                         
 
-    # This flag will signal the need for doing a domain update or not
-    $DomainUpdate = FALSE ; 
+    // This flag will signal the need for doing a domain update or not
+    $DomainUpdate = false ; 
 
-    # This flag will signal the need for doing a brorg update or not
-    $OrgUpdate = FALSE ;
+    // This flag will signal the need for doing a brorg update or not
+    $OrgUpdate = false ;
     
-    # Verify which contacts need updating
+    // Verify which contacts need updating
     $ContactTypes = array ("Registrant","Admin","Tech");
     $NewContactsID = array();
     $objNewContacts = array();
@@ -1047,7 +1006,7 @@ function registrobr_SaveContactDetails($params) {
 
         //work around  when WHMCS uses the owner contact details the indexes are different ... 
         
-        if(count($cdetails) > 10){
+        if(count($cdetails) > 10) {
             
             $index_fullname = "Full Name";
             $index_company = "Company Name";
@@ -1062,7 +1021,7 @@ function registrobr_SaveContactDetails($params) {
                 
         }
         else {
-            $objRegistroEPPBrorg->set('language',$params['Language']);
+            $objRegistroEPPBrorg->set('language', $params['Language']);
             
             $index_fullname = $objRegistroEPPBrorg->getMsgLang("fullnamefield");
             $index_company  = $objRegistroEPPBrorg->getMsgLang("companynamefield");
@@ -1094,24 +1053,24 @@ function registrobr_SaveContactDetails($params) {
 
 
         $objRegistroEPPBrorg = RegistroEPPFactory::build('RegistroEPPBrorg');
-        $objRegistroEPPBrorg->set('language',$params['Language']);
+        $objRegistroEPPBrorg->set('language', $params['Language']);
         
-        $objRegistroEPPBrorg->set('netClient',$objRegistroEPP->get('netClient'));
-        $objRegistroEPPBrorg->set('domain',$domain);
-        $objRegistroEPPBrorg->set('contactID',$RegistrantTaxID);
-        $objRegistroEPPBrorg->set('contactIDDigits',$RegistrantTaxIDDigits);
+        $objRegistroEPPBrorg->set('netClient', $objRegistroEPP->get('netClient'));
+        $objRegistroEPPBrorg->set('domain', $domain);
+        $objRegistroEPPBrorg->set('contactID', $RegistrantTaxID);
+        $objRegistroEPPBrorg->set('contactIDDigits', $RegistrantTaxIDDigits);
 
-        $objRegistroEPPBrorg->set('name',$name);
-        $objRegistroEPPBrorg->set('street1',$street1);
-        $objRegistroEPPBrorg->set('street2',$street2);
-        $objRegistroEPPBrorg->set('street3',$street3);
+        $objRegistroEPPBrorg->set('name', $name);
+        $objRegistroEPPBrorg->set('street1', $street1);
+        $objRegistroEPPBrorg->set('street2', $street2);
+        $objRegistroEPPBrorg->set('street3', $street3);
         
-        $objRegistroEPPBrorg->set('city',$city);
-        $objRegistroEPPBrorg->set('sp',$sp);
-        $objRegistroEPPBrorg->set('pc',$pc);
-        $objRegistroEPPBrorg->set('cc',$cc);
-        $objRegistroEPPBrorg->set('voice',$voice);
-        $objRegistroEPPBrorg->set('email',$email);
+        $objRegistroEPPBrorg->set('city', $city);
+        $objRegistroEPPBrorg->set('sp', $sp);
+        $objRegistroEPPBrorg->set('pc', $pc);
+        $objRegistroEPPBrorg->set('cc', $cc);
+        $objRegistroEPPBrorg->set('voice', $voice);
+        $objRegistroEPPBrorg->set('email', $email);
                 
         try {
             $objRegistroEPPBrorg->createData();
@@ -1124,21 +1083,21 @@ function registrobr_SaveContactDetails($params) {
         $objNewContacts[$type] = $objRegistroEPPBrorg;
         
         if ($type!="Registrant") {
-            $DomainUpdate=TRUE;
+            $DomainUpdate=true;
         }
         else {
-            $OrgUpdate=TRUE;
+            $OrgUpdate=true;
             //$OrgContactXML=$request;
         }
         
     }
 
-    if ($DomainUpdate == TRUE) {
+    if ($DomainUpdate == true) {
         $NewContactsID["Billing"] = $NewContactsID["Admin"];
 
         try {
             //obj Domain
-            $objRegistroEPP->updateInfo($Contacts,$NewContactsID);
+            $objRegistroEPP->updateInfo($Contacts, $NewContactsID);
         }
         catch(Exception $e){
             $values["error"] = $e->getMessage();
@@ -1146,16 +1105,16 @@ function registrobr_SaveContactDetails($params) {
         }        
     }
     
-    if ($OrgUpdate == TRUE){ 
+    if ($OrgUpdate == true) { 
         try {
-            #Get info about the brorg
+            // Get info about the brorg
             $objRegistroEPPBrorg = RegistroEPPFactory::build('RegistroEPPBrorg');
-            $objRegistroEPPBrorg->set('language',$params['Language']);
+            $objRegistroEPPBrorg->set('language', $params['Language']);
              
-            $objRegistroEPPBrorg->set('netClient',$objRegistroEPP->get('netClient'));
-            $objRegistroEPPBrorg->set('domain',$domain);
-            $objRegistroEPPBrorg->set('contactID',$RegistrantTaxID);
-            $objRegistroEPPBrorg->set('contactIDDigits',$RegistrantTaxIDDigits);
+            $objRegistroEPPBrorg->set('netClient', $objRegistroEPP->get('netClient'));
+            $objRegistroEPPBrorg->set('domain', $domain);
+            $objRegistroEPPBrorg->set('contactID', $RegistrantTaxID);
+            $objRegistroEPPBrorg->set('contactIDDigits', $RegistrantTaxIDDigits);
             $objRegistroEPPBrorg->getInfo();
         }
         catch(Exception $e) {
@@ -1165,7 +1124,7 @@ function registrobr_SaveContactDetails($params) {
         //Get current org contact
         $Contacts["Registrant"]= $objRegistroEPPBrorg->get('contact');
         
-        if (isCpfValid($RegistrantTaxIDDigits)==TRUE) {
+        if (isCpfValid($RegistrantTaxIDDigits)==true) {
             $companyname = $objRegistroEPPBrorg->get('name');
         }
         else { 
@@ -1179,27 +1138,27 @@ function registrobr_SaveContactDetails($params) {
         $objReg = $objNewContacts["Registrant"];
 
         $objNewRegistroEPPBrorg = RegistroEPPFactory::build('RegistroEPPBrorg');
-        $objNewRegistroEPPBrorg->set('language',$params['Language']);
+        $objNewRegistroEPPBrorg->set('language', $params['Language']);
          
-        $objNewRegistroEPPBrorg->set('netClient',$objRegistroEPP->get('netClient'));
-        $objNewRegistroEPPBrorg->set('domain',$domain);
-        $objNewRegistroEPPBrorg->set('contactID',$RegistrantTaxID);
-        $objNewRegistroEPPBrorg->set('contactIDDigits',$RegistrantTaxIDDigits);
-        $objNewRegistroEPPBrorg->set('name',$objReg->get('name'));
-        $objNewRegistroEPPBrorg->set('street1',$objReg->get('street1'));
-        $objNewRegistroEPPBrorg->set('street2',$objReg->get('street2'));
-        $objNewRegistroEPPBrorg->set('street3',$objReg->get('street3'));
-        $objNewRegistroEPPBrorg->set('city',$objReg->get('city'));
-        $objNewRegistroEPPBrorg->set('sp',$objReg->get('sp'));
-        $objNewRegistroEPPBrorg->set('pc',$objReg->get('pc'));
-        $objNewRegistroEPPBrorg->set('cc',$objReg->get('cc'));
-        $objNewRegistroEPPBrorg->set('voice',$objReg->get('voice'));
-        $objNewRegistroEPPBrorg->set('email',$objReg->get('email'));
-        $objNewRegistroEPPBrorg->set('responsible',$objReg->get('name'));
+        $objNewRegistroEPPBrorg->set('netClient', $objRegistroEPP->get('netClient'));
+        $objNewRegistroEPPBrorg->set('domain', $domain);
+        $objNewRegistroEPPBrorg->set('contactID', $RegistrantTaxID);
+        $objNewRegistroEPPBrorg->set('contactIDDigits', $RegistrantTaxIDDigits);
+        $objNewRegistroEPPBrorg->set('name', $objReg->get('name'));
+        $objNewRegistroEPPBrorg->set('street1', $objReg->get('street1'));
+        $objNewRegistroEPPBrorg->set('street2', $objReg->get('street2'));
+        $objNewRegistroEPPBrorg->set('street3', $objReg->get('street3'));
+        $objNewRegistroEPPBrorg->set('city', $objReg->get('city'));
+        $objNewRegistroEPPBrorg->set('sp', $objReg->get('sp'));
+        $objNewRegistroEPPBrorg->set('pc', $objReg->get('pc'));
+        $objNewRegistroEPPBrorg->set('cc', $objReg->get('cc'));
+        $objNewRegistroEPPBrorg->set('voice', $objReg->get('voice'));
+        $objNewRegistroEPPBrorg->set('email', $objReg->get('email'));
+        $objNewRegistroEPPBrorg->set('responsible', $objReg->get('name'));
          
         
         try {
-            $objNewRegistroEPPBrorg->updateInfo($Contacts,$NewContactsID);
+            $objNewRegistroEPPBrorg->updateInfo($Contacts, $NewContactsID);
         }
         catch(Exception $e){
             $values["error"] = $e->getMessage();
@@ -1212,18 +1171,19 @@ function registrobr_SaveContactDetails($params) {
     return $values;
 }
 
-# Domain Delete (used in .br only for Add Grace Period)
-function registrobr_RequestDelete($params) {
-    require_once('RegistroEPP/RegistroEPPFactory.class.php');
+// Domain Delete (used in .br only for Add Grace Period)
+function registrobr_RequestDelete($params) 
+{
+    include_once 'RegistroEPP/RegistroEPPFactory.class.php';
     
     $domain = $params["sld"].".".$params["tld"];
     
-    # Grab module parameters
+    // Grab module parameters
     $moduleparams = getregistrarconfigoptions('registrobr');
     
     $objRegistroEPPDomain = RegistroEPPFactory::build('RegistroEPPDomain');
-    $objRegistroEPPDomain->set('domain',$domain);
-    $objRegistroEPPDomain->set('language',$params['Language']);
+    $objRegistroEPPDomain->set('domain', $domain);
+    $objRegistroEPPDomain->set('language', $params['Language']);
     
     
     try {
@@ -1236,36 +1196,37 @@ function registrobr_RequestDelete($params) {
         $values["error"] = $e->getMessage();
         return $values;
     }
-    #If unknown domain, could be a ticket
+    // If unknown domain, could be a ticket
     
     if($coderes == '2303') {
             $values = registrobr_Getnameservers($params);
         
-            # If no error, domain is still a ticket, so we remove the nameservers to prevent it becoming a domain
-            if (empty($values["error"])) {
-                $setparams=$params;
-                $setparams["ns1"]='';
-                $setparams["ns2"]='';
-                $setparams["ns3"]='';
-                $setparams["ns4"]='';
-                $setparams["ns5"]='';
+            // If no error, domain is still a ticket, so we remove the nameservers to prevent it becoming a domain
+        if (empty($values["error"])) {
+            $setparams=$params;
+            $setparams["ns1"]='';
+            $setparams["ns2"]='';
+            $setparams["ns3"]='';
+            $setparams["ns4"]='';
+            $setparams["ns5"]='';
             
-                $values = registrobr_SaveNameservers($setparams);
-                if (empty($values["error"])) {
-                    $values=array();
-                    return $values ;
-                }
+            $values = registrobr_SaveNameservers($setparams);
+            if (empty($values["error"])) {
+                $values=array();
+                return $values ;
             }
+        }
     }
 
 }
 
-function registrobr_Sync($params) {
+function registrobr_Sync($params) 
+{
     
     /*
      * 
      Array
-(
+    (
     [Certificate] => 
     [CNPJ] => 1
     [CPF] => 1
@@ -1283,7 +1244,7 @@ function registrobr_Sync($params) {
     [tld] => com.br
     [registrar] => registrobr
     [status] => Active
-)
+    )
      */
     
 
@@ -1291,10 +1252,10 @@ function registrobr_Sync($params) {
     $include_path = ROOTDIR . '/modules/registrars/registrobr';
     set_include_path($include_path . PATH_SEPARATOR . get_include_path());
     
-    require_once('RegistroEPP/RegistroEPPFactory.class.php');
+    include_once 'RegistroEPP/RegistroEPPFactory.class.php';
     
     
-    # Grab variables
+    // Grab variables
     $domain = $params['domain'];
     $moduleparams = getregistrarconfigoptions('registrobr');
     $table = "mod_registrobr";
@@ -1305,7 +1266,7 @@ function registrobr_Sync($params) {
             "domain"    =>    $domain
             );
     
-    $result = select_query($table,$fields,$where);
+    $result = select_query($table, $fields, $where);
     $data = mysql_fetch_array($result);
     $ticket = $data['ticket'];
     
@@ -1315,14 +1276,14 @@ function registrobr_Sync($params) {
     $objRegistroEPPDomain = RegistroEPPFactory::build('RegistroEPPDomain');
 
     
-    $objRegistroEPPDomain->set('domain',$domain);
-    $objRegistroEPPDomain->set('language',$params['Language']);
+    $objRegistroEPPDomain->set('domain', $domain);
+    $objRegistroEPPDomain->set('language', $params['Language']);
     
     try {
         $objRegistroEPPDomain->login($moduleparams);
         
-        if($ticket){
-            $objRegistroEPPDomain->set('ticket',$ticket);
+        if($ticket) {
+            $objRegistroEPPDomain->set('ticket', $ticket);
         }
         $objRegistroEPPDomain->getInfo();
         
@@ -1331,7 +1292,7 @@ function registrobr_Sync($params) {
         
         $values["error"] = $e->getMessage();
         $error = $e->getMessage();
-        $objRegistroEPPDomain->error('syncdomainnevercreated',$error,'');
+        $objRegistroEPPDomain->error('syncdomainnevercreated', $error, '');
         
         return $values;
     }
@@ -1343,14 +1304,14 @@ function registrobr_Sync($params) {
     $nextduedate = $objRegistroEPPDomain->get('exDate');    
     $holdreasons = $objRegistroEPPDomain->get('onHoldReason');
     
-    #if ticket number is different, this is actually a new domain with the same name
+    // if ticket number is different, this is actually a new domain with the same name
     if (!empty($ticket) and $objRegistroEPPDomain->get('ticket') != $ticket) {
         $values['expired'] = true ;
         $values['expirydate'] = $createdate;
     }
     elseif (count($holdreasons) > 0) {
         foreach ($holdreasons as $hr){
-            if (array_search("billing",$hr)!=FALSE) {
+            if (array_search("billing", $hr)!=false) {
                 $values['expired'] = true;
                 $values['expirydate'] = $nextduedate;
             }
@@ -1368,7 +1329,8 @@ function registrobr_Sync($params) {
 
 
 
-function _registrobr_getTickets($clID,$domainid,$domain){
+function _registrobr_getTickets($clID,$domainid,$domain)
+{
 
     $table = "mod_registrobr";
     $fields = "clID,domainid,domain,ticket";
@@ -1378,12 +1340,9 @@ function _registrobr_getTickets($clID,$domainid,$domain){
             "domain"    =>    $domain
     );
 
-    $result = select_query($table,$fields,$where);
+    $result = select_query($table, $fields, $where);
     $data = mysql_fetch_array($result);
     $ticket = $data['ticket'];
 
     return $ticket;
 }
-
-
-?>
